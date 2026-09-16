@@ -8,7 +8,8 @@
 
 Darukaa.Earth is a full-stack geospatial platform that enables organizations to manage, monitor, and report on environmental projects — including carbon sequestration sites and biodiversity conservation areas.
 
-This repository contains the initial architectural scaffold. Business features are explicitly **not implemented yet**. See the [Planned Features](#planned-features) section for the roadmap.
+Administrators can authenticate, create and manage project portfolios, draw site polygons,
+inspect PostGIS-backed geometries, and explore synthetic demonstration analytics over time.
 
 ---
 
@@ -51,7 +52,7 @@ PostgreSQL + PostGIS
 | Axios | **1.20.0** (pinned) | HTTP client |
 | Tailwind CSS | 3 | Utility-first styling |
 | Chart.js / react-chartjs-2 | 4 / 5 | Data visualization |
-| Mapbox GL JS | 3 | Geospatial maps (pending token) |
+| Mapbox GL JS | 3 | Interactive geospatial maps |
 | Vitest | 4.1.11+ | Unit testing |
 | React Testing Library | 16 | Component testing |
 | ESLint | 8 | Linting |
@@ -70,8 +71,8 @@ PostgreSQL + PostGIS
 | pydantic-settings | 2.5+ | Env-based configuration |
 | psycopg2-binary | 2.9+ | PostgreSQL driver |
 | GeoAlchemy2 | 0.15+ | PostGIS spatial types |
-| python-jose | 3.3+ | JWT (scaffold only) |
-| passlib[bcrypt] | 1.7+ | Password hashing (scaffold only) |
+| python-jose | 3.3+ | JWT authentication |
+| passlib[bcrypt] | 1.7+ | Password hashing |
 | Ruff | 0.6+ | Linting + formatting |
 | pytest | 8+ | Testing |
 
@@ -99,7 +100,7 @@ darukaa-earth/
 │   │   ├── assets/
 │   │   ├── components/         # Reusable UI components
 │   │   ├── context/
-│   │   │   └── AuthContext.tsx # Auth context shape (not implemented)
+│   │   │   └── AuthContext.tsx # Authentication state and protected-route support
 │   │   ├── hooks/              # Custom React hooks
 │   │   ├── layouts/
 │   │   │   └── AppLayout.tsx   # App shell with sidebar
@@ -140,18 +141,18 @@ darukaa-earth/
 │   │   │       └── health.py   # GET /api/v1/health (implemented)
 │   │   ├── core/
 │   │   │   ├── config.py       # Settings (pydantic-settings)
-│   │   │   └── security.py     # Auth stubs (NOT implemented)
+│   │   │   └── security.py     # Password hashing and JWT utilities
 │   │   ├── db/
 │   │   │   ├── base.py         # SQLAlchemy declarative base
 │   │   │   └── database.py     # Engine + session factory
 │   │   ├── models/
 │   │   │   ├── user.py         # User ORM model
 │   │   │   └── project.py      # Project ORM model
-│   │   ├── repositories/       # Data access layer (empty — scaffold)
+│   │   ├── repositories/       # Data access layer
 │   │   ├── schemas/
 │   │   │   ├── health.py       # HealthResponse
-│   │   │   └── user.py         # User schemas (stub)
-│   │   └── services/           # Business logic layer (empty — scaffold)
+│   │   │   └── user.py         # User request/response schemas
+│   │   └── services/           # Business logic layer
 │   ├── tests/
 │   │   └── test_health.py      # Health endpoint tests
 │   ├── alembic.ini
@@ -236,7 +237,7 @@ See [`.env.example`](./.env.example) for the full reference.
 | `JWT_SECRET_KEY` | Backend | Secret for JWT signing (use a long random string) |
 | `JWT_ALGORITHM` | Backend | Algorithm (default: `HS256`) |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Backend | Token expiry (default: `30`) |
-| `CORS_ORIGINS` | Backend | Comma-separated allowed origins |
+| `CORS_ORIGINS` | Backend | JSON array of allowed origins |
 
 ---
 
@@ -313,33 +314,6 @@ production Render and Vercel deploy hooks. The hook URLs are stored only as GitH
 Actions secrets (`RENDER_DEPLOY_HOOK_URL` and `VERCEL_DEPLOY_HOOK_URL`), never in the
 repository. Do not enable direct push-based auto-deploys in Render or Vercel when this
 gate is active.
-
----
-
-## Planned Features
-
-> Sections marked **[PLANNED]** are not yet implemented.
-
-- **[PLANNED]** User authentication (JWT login, registration, token refresh)
-- **[PLANNED]** Project CRUD (create, list, update, delete carbon/biodiversity projects)
-- **[PLANNED]** Site management (geospatial boundaries, PostGIS geometry)
-- **[PLANNED]** Mapbox GL JS map integration (requires `VITE_MAPBOX_TOKEN`)
-- **[PLANNED]** Geospatial data upload (GeoJSON, Shapefile)
-- **[PLANNED]** Carbon metrics dashboard (Chart.js)
-- **[PLANNED]** Biodiversity monitoring
-- **[PLANNED]** Role-based access control
-
----
-
-## Planned Deployment Architecture
-
-> **[PLANNED]** — not yet configured.
-
-| Component | Service |
-|-----------|---------|
-| Frontend | Vercel (static + edge) |
-| Backend | Render (web service) |
-| Database | Managed PostgreSQL + PostGIS |
 
 ---
 
