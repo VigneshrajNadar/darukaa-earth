@@ -45,7 +45,7 @@ def setup_test_db() -> Generator[None, None, None]:
         with test_engine.begin() as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
     except Exception:
-        pass # If we lack permissions, assume it's already there
+        pass  # If we lack permissions, assume it's already there
 
     Base.metadata.drop_all(bind=test_engine)
     Base.metadata.create_all(bind=test_engine)
@@ -70,3 +70,44 @@ def db_session() -> Generator[Session, None, None]:
     session.close()
     transaction.rollback()
     connection.close()
+
+
+@pytest.fixture(scope="function")
+def client(db_session: Session) -> Generator:
+    from fastapi.testclient import TestClient
+
+    from app.api.deps import get_db
+    from app.main import app
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="function")
+def test_user(db_session: Session):
+    import uuid
+
+    from app.core.security import hash_password
+    from app.models.user import User
+
+    user = User(
+        id=uuid.uuid4(),
+        email=f"test_{uuid.uuid4()}@example.com",
+        password_hash=hash_password("testpassword"),
+        name="Test User",
+    )
+    db_session.add(user)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture(scope="function")
+def test_user_token(test_user):
+    from app.core.security import create_access_token
+
+    return create_access_token(subject=test_user.id)

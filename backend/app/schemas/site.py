@@ -33,14 +33,31 @@ class SiteUpdate(BaseModel):
 class SiteRead(SiteBase):
     """
     Schema for reading a site.
-    Converts PostGIS WKT string formats into proper GeoJSON dictionaries.
     """
 
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     project_id: uuid.UUID
-    area_hectares: float
+    area_hectares: float | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SiteSummary(SiteRead):
+    """Schema for a site with latest metrics."""
+
+    latest_carbon: float | None = None
+    latest_biodiversity: float | None = None
+    latest_vegetation: float | None = None
+    latest_tree_cover: float | None = None
+
+
+class Map(SiteRead):
+    """
+    Schema for site map representation.
+    Converts PostGIS WKT string formats into proper GeoJSON dictionaries.
+    """
 
     # For geometry and centroid, the SQLAlchemy ORM model returns WKT / WKB strings.
     # To output valid GeoJSON to the API client, we map them here.

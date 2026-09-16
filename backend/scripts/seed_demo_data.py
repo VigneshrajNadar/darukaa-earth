@@ -36,15 +36,19 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.site import SiteCreate
 from app.services.site_service import SiteService
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-DEMO_USER_EMAIL = "demo@darukaa-earth.local"
+DEMO_USER_EMAIL = "demo@darukaa-earth.com"
 # The password should be passed via env var; otherwise, default to a safe mock value
 DEMO_USER_PASSWORD = os.getenv("DEMO_USER_PASSWORD", "demo1234")
 
 
-def generate_deterministic_noise(seed_str: str, index: int, bounds: tuple[float, float]) -> float:
+def generate_deterministic_noise(
+    seed_str: str, index: int, bounds: tuple[float, float]
+) -> float:
     """Generate deterministic pseudo-random float between bounds based on a string seed."""
     hash_input = f"{seed_str}-{index}".encode()
     hash_val = int(hashlib.md5(hash_input).hexdigest(), 16)
@@ -58,7 +62,9 @@ def clamp(val: float, min_val: float, max_val: float) -> float:
     return max(min_val, min(val, max_val))
 
 
-def generate_synthetic_analytics(db: Session, site_id, site_code: str, months: int = 24) -> None:
+def generate_synthetic_analytics(
+    db: Session, site_id, site_code: str, months: int = 24
+) -> None:
     """
     Generate deterministic synthetic analytics for a given site.
     Values are NOT real ecological measurements.
@@ -90,7 +96,9 @@ def generate_synthetic_analytics(db: Session, site_id, site_code: str, months: i
         # 2. Biodiversity Score (0-100)
         b_seasonal = 2.0 * math.sin(2 * math.pi * (current_date.month / 12.0))
         b_noise = generate_deterministic_noise(site_code, m * 10 + 2, (-1.5, 1.5))
-        bio = clamp(base_biodiversity + (bio_trend * t) + b_seasonal + b_noise, 0.0, 100.0)
+        bio = clamp(
+            base_biodiversity + (bio_trend * t) + b_seasonal + b_noise, 0.0, 100.0
+        )
 
         # 3. Vegetation Index (0-1)
         v_seasonal = 0.1 * math.sin(2 * math.pi * (current_date.month / 12.0))
@@ -107,7 +115,7 @@ def generate_synthetic_analytics(db: Session, site_id, site_code: str, months: i
             carbon_tonnes=carbon,
             biodiversity_score=bio,
             vegetation_index=veg,
-            tree_cover_percentage=tree
+            tree_cover_percentage=tree,
         )
         db.add(analytics)
 
@@ -125,38 +133,43 @@ def seed_data(reset: bool = False):
 
         if reset:
             if existing_user:
-                logger.info("Reset flag provided. Deleting existing demo data (cascade will remove projects, sites, analytics)...")
+                logger.info(
+                    "Reset flag provided. Deleting existing demo data (cascade will remove projects, sites, analytics)..."
+                )
                 db.delete(existing_user)
                 db.commit()
                 existing_user = None
             else:
-                logger.info("Reset flag provided, but no demo data found. Proceeding with seed.")
+                logger.info(
+                    "Reset flag provided, but no demo data found. Proceeding with seed."
+                )
         else:
             if existing_user:
-                logger.info("Demo user already exists. Seed is idempotent and will not duplicate data. Run with --reset to rebuild.")
+                logger.info(
+                    "Demo user already exists. Seed is idempotent and will not duplicate data. Run with --reset to rebuild."
+                )
                 return
 
         # 1. Create Demo User
         logger.info("Creating demo user...")
         try:
             from passlib.context import CryptContext
+
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             hashed_pw = pwd_context.hash(DEMO_USER_PASSWORD)
         except ValueError:
             # Workaround for passlib + bcrypt >= 4.0 bug
-            hashed_pw = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjIQqiRQYq"
+            hashed_pw = "$2b$12$eDjCSc0zzs3FwlldsAGXx.ohU9uQXtE3cjL5.CuY6Qy1H.3twWSvW"
 
-        user = User(
-            name="Demo Admin",
-            email=DEMO_USER_EMAIL,
-            password_hash=hashed_pw
-        )
+        user = User(name="Demo Admin", email=DEMO_USER_EMAIL, password_hash=hashed_pw)
         db.add(user)
         db.commit()
         db.refresh(user)
 
         # 2. Parse GeoJSON and build projects/sites
-        geojson_path = Path(__file__).resolve().parents[1] / "data" / "demo" / "sites.geojson"
+        geojson_path = (
+            Path(__file__).resolve().parents[1] / "data" / "demo" / "sites.geojson"
+        )
         if not geojson_path.exists():
             logger.error(f"GeoJSON file not found at {geojson_path}")
             sys.exit(1)
@@ -189,7 +202,7 @@ def seed_data(reset: bool = False):
                     name=project_name,
                     project_type=ptype,
                     status=ProjectStatus.ACTIVE,
-                    owner_id=user.id
+                    owner_id=user.id,
                 )
                 db.add(project)
                 db.commit()
@@ -200,11 +213,7 @@ def seed_data(reset: bool = False):
 
             # Create Site
             logger.info(f"Creating site: {site_name} ({site_code})")
-            site_in = SiteCreate(
-                project_id=project.id,
-                name=site_name,
-                geometry=geom
-            )
+            site_in = SiteCreate(project_id=project.id, name=site_name, geometry=geom)
             try:
                 site = site_service.create_site(site_in)
                 db.commit()
@@ -219,9 +228,14 @@ def seed_data(reset: bool = False):
 
         logger.info("Demo data seeding completed successfully.")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Seed demonstration data.")
-    parser.add_argument("--reset", action="store_true", help="Delete existing demonstration data before seeding")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Delete existing demonstration data before seeding",
+    )
     args = parser.parse_args()
 
     seed_data(reset=args.reset)

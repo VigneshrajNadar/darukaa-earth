@@ -22,8 +22,9 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     """Schema for creating a new project."""
 
-    # owner_id will typically be injected from the current authenticated user
-    owner_id: uuid.UUID
+    # The authenticated route injects ownership. It remains accepted for
+    # backwards-compatible trusted clients, but may never target another user.
+    owner_id: uuid.UUID | None = None
 
 
 class ProjectUpdate(BaseModel):
@@ -44,3 +45,11 @@ class ProjectRead(ProjectBase):
     owner_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+
+
+class ProjectSummary(ProjectRead):
+    """Schema exposing project summary information."""
+
+    site_count: int = 0
+    total_area_hectares: float = 0.0
+    latest_carbon_tonnes: float | None = None

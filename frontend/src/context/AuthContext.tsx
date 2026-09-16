@@ -1,39 +1,70 @@
-/* eslint-disable react-refresh/only-export-components */
-// Context and hook files intentionally export non-component values.
-import { createContext, useContext } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import type { User } from '@/types'
-
-/**
- * AuthContext — architectural scaffold.
- *
- * This file defines the shape of the authentication context.
- * Authentication is NOT implemented yet.
- *
- * Full implementation will happen in the dedicated auth stage:
- *  - JWT storage strategy
- *  - Login / logout actions
- *  - Token refresh logic
- *  - Protected route enforcement
- */
+import { authApi } from '@/api/auth'
 
 interface AuthContextValue {
-  /** Currently authenticated user, or null if unauthenticated. */
   user: User | null
-  /** True while an auth operation is in progress. */
   isLoading: boolean
-  /** True if a user is authenticated. */
   isAuthenticated: boolean
-  // Placeholders — will be implemented in auth stage:
-  login: (_email: string, _password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-/**
- * useAuth — hook to consume the AuthContext.
- * Throws if used outside of an AuthProvider.
- */
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('access_token')
+      if (token) {
+        try {
+          const userData = await authApi.getMe()
+          setUser(userData)
+        } catch (error) {
+          console.error('Failed to fetch user', error)
+          localStorage.removeItem('access_token')
+        }
+      }
+      setIsLoading(false)
+    }
+    initAuth()
+  }, [])
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true)
+    try {
+      const { access_token } = await authApi.login(email, password)
+      localStorage.setItem('access_token', access_token)
+      const userData = await authApi.getMe()
+      setUser(userData)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
+    localStorage.removeItem('access_token')
+    setUser(null)
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext)
   if (context === undefined) {

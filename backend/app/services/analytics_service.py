@@ -2,7 +2,9 @@
 Site Analytics service layer.
 """
 
+import uuid
 from collections.abc import Sequence
+from datetime import date
 
 from app.models.site_analytics import SiteAnalytics
 from app.repositories.site_analytics_repository import SiteAnalyticsRepository
@@ -27,6 +29,19 @@ class AnalyticsService:
         )
         return self.repository.create(analytics)
 
-    def list_analytics_by_site(self, site_id) -> Sequence[SiteAnalytics]:
+    def list_analytics_for_site(
+        self,
+        site_id: uuid.UUID,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> tuple[Sequence[SiteAnalytics], int]:
         """List all analytics for a site."""
-        return self.repository.list_by_site(site_id)
+        return self.repository.list_by_site(
+            site_id=site_id,
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+            offset=offset,
+        )

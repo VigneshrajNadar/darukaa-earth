@@ -303,7 +303,10 @@ Current tests:
 
 ### CI
 
-GitHub Actions runs both test suites on every push and pull request to `main` and `develop`.
+GitHub Actions runs on pushes and pull requests targeting `main`. The frontend job runs
+Prettier, ESLint, TypeScript, Vitest, and a Vite production build with a non-secret
+Mapbox placeholder. The backend job runs Ruff and pytest against PostgreSQL 16 with
+PostGIS 3.4. This CI scope validates quality only; it does not deploy the application.
 
 ---
 

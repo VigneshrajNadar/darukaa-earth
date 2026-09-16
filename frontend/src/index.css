@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -12,6 +12,122 @@
   }
 
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen;
+    @apply min-h-screen bg-[#f5f6f0] text-[#153a22];
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(111, 155, 110, 0.16), transparent 28rem),
+      radial-gradient(circle at 86% 22%, rgba(197, 214, 184, 0.45), transparent 27rem),
+      linear-gradient(180deg, #fbfcf8 0%, #f1f3eb 100%);
   }
+}
+
+@layer components {
+  .brand-eyebrow {
+    @apply text-[10px] font-bold uppercase tracking-[0.26em] text-earth-600;
+  }
+
+  .app-surface {
+    @apply border border-[#dfe5d9] bg-white/80 shadow-[0_18px_55px_rgba(22,57,34,0.06)] backdrop-blur-sm;
+  }
+
+  .reveal-up {
+    animation: reveal-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 100ms;
+  }
+  .reveal-delay-2 {
+    animation-delay: 200ms;
+  }
+  .ambient-orb {
+    animation: ambient-orb 12s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ambient-orb {
+  from {
+    transform: translate3d(-2%, -2%, 0) scale(0.96);
+  }
+  to {
+    transform: translate3d(3%, 3%, 0) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer utilities {
+  /* Transitional semantic bridge: legacy components were built for the former
+     dark shell. Preserve their hierarchy inside the light product system. */
+  .bg-slate-950 {
+    background-color: #f7f9f4 !important;
+  }
+  .bg-slate-900 {
+    background-color: #ffffff !important;
+  }
+  .bg-slate-800 {
+    background-color: #edf2e9 !important;
+  }
+  .bg-slate-950\/50 {
+    background-color: rgba(247, 249, 244, 0.72) !important;
+  }
+  .bg-slate-900\/30 {
+    background-color: rgba(255, 255, 255, 0.72) !important;
+  }
+  .text-slate-100,
+  .text-slate-200 {
+    color: #183c25 !important;
+  }
+  .text-slate-300 {
+    color: #345440 !important;
+  }
+  .text-slate-400 {
+    color: #637267 !important;
+  }
+  .text-slate-500 {
+    color: #77867a !important;
+  }
+  .text-slate-600 {
+    color: #607063 !important;
+  }
+  .text-slate-700 {
+    color: #46584a !important;
+  }
+  .border-slate-800,
+  .border-slate-800\/50 {
+    border-color: #dfe5d9 !important;
+  }
+  .border-slate-700 {
+    border-color: #cfd9c9 !important;
+  }
+  .hover\:border-slate-700:hover {
+    border-color: #b6c9b5 !important;
+  }
+}
+
+/* Mapbox's stylesheet otherwise overrides Tailwind's `absolute` utility and
+   collapses the map root to 0px tall. */
+.mapboxgl-map {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
 }

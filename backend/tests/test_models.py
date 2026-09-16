@@ -22,6 +22,7 @@ from app.services.site_service import SiteService, SiteValidationError
 
 # ─── 1. USER & CONSTRAINTS ────────────────────────────────────────────────────────
 
+
 def test_user_creation(db_session: Session) -> None:
     """Test User model creation."""
     user = User(
@@ -50,16 +51,27 @@ def test_case_insensitive_email_uniqueness(db_session: Session) -> None:
 
 # ─── 2. RELATIONSHIPS ─────────────────────────────────────────────────────────────
 
+
 def test_project_site_relationship(db_session: Session) -> None:
     """Test Project to Site relationship and cascade readiness."""
     user = User(name="O", email="o@e.com", password_hash="h")
-    project = Project(name="P", project_type=ProjectType.OTHER, status=ProjectStatus.ACTIVE, owner=user)
+    project = Project(
+        name="P",
+        project_type=ProjectType.OTHER,
+        status=ProjectStatus.ACTIVE,
+        owner=user,
+    )
     db_session.add_all([user, project])
     db_session.commit()
 
     service = SiteService(SiteRepository(db_session))
-    geojson = {"type": "Polygon", "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]]}
-    site = service.create_site(SiteCreate(project_id=project.id, name="Test Site", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]],
+    }
+    site = service.create_site(
+        SiteCreate(project_id=project.id, name="Test Site", geometry=geojson)
+    )
 
     db_session.refresh(project)
     assert site.project_id == project.id
@@ -69,17 +81,31 @@ def test_project_site_relationship(db_session: Session) -> None:
 def test_cascade_deletion(db_session: Session) -> None:
     """Test cascade delete from Project -> Site -> Analytics."""
     user = User(name="O", email="o2@e.com", password_hash="h")
-    project = Project(name="P", project_type=ProjectType.OTHER, status=ProjectStatus.ACTIVE, owner=user)
+    project = Project(
+        name="P",
+        project_type=ProjectType.OTHER,
+        status=ProjectStatus.ACTIVE,
+        owner=user,
+    )
     db_session.add_all([user, project])
     db_session.commit()
 
     service = SiteService(SiteRepository(db_session))
-    geojson = {"type": "Polygon", "coordinates": [[[0,0], [1,0], [1,1], [0,1], [0,0]]]}
-    site = service.create_site(SiteCreate(project_id=project.id, name="Site", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    }
+    site = service.create_site(
+        SiteCreate(project_id=project.id, name="Site", geometry=geojson)
+    )
 
     analytics = SiteAnalytics(
-        site_id=site.id, recorded_date=date.today(), carbon_tonnes=10,
-        biodiversity_score=50.0, vegetation_index=0.5, tree_cover_percentage=50.0
+        site_id=site.id,
+        recorded_date=date.today(),
+        carbon_tonnes=10,
+        biodiversity_score=50.0,
+        vegetation_index=0.5,
+        tree_cover_percentage=50.0,
     )
     db_session.add(analytics)
     db_session.commit()
@@ -93,6 +119,7 @@ def test_cascade_deletion(db_session: Session) -> None:
 
 # ─── 3. SPATIAL TESTS ─────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def site_service(db_session: Session) -> SiteService:
     return SiteService(SiteRepository(db_session))
@@ -101,36 +128,62 @@ def site_service(db_session: Session) -> SiteService:
 @pytest.fixture
 def project_id(db_session: Session) -> uuid.UUID:
     user = User(name="O", email="ospatial@e.com", password_hash="h")
-    project = Project(name="P", project_type=ProjectType.OTHER, status=ProjectStatus.ACTIVE, owner=user)
+    project = Project(
+        name="P",
+        project_type=ProjectType.OTHER,
+        status=ProjectStatus.ACTIVE,
+        owner=user,
+    )
     db_session.add_all([user, project])
     db_session.commit()
     return project.id
 
 
-def test_valid_polygon_geometry_srid(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_valid_polygon_geometry_srid(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test persistence and SRID 4326 correctly assigned."""
-    geojson = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}
-    site = site_service.create_site(SiteCreate(project_id=project_id, name="Eq", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    }
+    site = site_service.create_site(
+        SiteCreate(project_id=project_id, name="Eq", geometry=geojson)
+    )
     geom_shape = to_shape(site.geometry)
 
     assert geom_shape.geom_type == "Polygon"
     assert site.geometry.srid == 4326
 
 
-def test_spatial_area_calculation(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_spatial_area_calculation(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test geodesic geographic-area calculation in hectares."""
     # 1 degree square at equator is approx 1,232,100 hectares
-    geojson = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}
-    site = site_service.create_site(SiteCreate(project_id=project_id, name="Area", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    }
+    site = site_service.create_site(
+        SiteCreate(project_id=project_id, name="Area", geometry=geojson)
+    )
 
     assert site.area_hectares > 1_000_000
     assert site.area_hectares < 1_500_000
 
 
-def test_spatial_centroid_calculation(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_spatial_centroid_calculation(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test centroid calculation."""
-    geojson = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}
-    site = site_service.create_site(SiteCreate(project_id=project_id, name="Centroid", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    }
+    site = site_service.create_site(
+        SiteCreate(project_id=project_id, name="Centroid", geometry=geojson)
+    )
     centroid_shape = to_shape(site.centroid)
 
     assert centroid_shape.geom_type == "Point"
@@ -140,9 +193,11 @@ def test_spatial_centroid_calculation(site_service: SiteService, project_id: uui
 
 def test_gist_spatial_index(db_session: Session) -> None:
     """Test that the GiST spatial index was created on sites.geometry."""
-    result = db_session.execute(text(
-        "SELECT indexdef FROM pg_indexes WHERE tablename = 'sites' AND indexname = 'idx_sites_geometry';"
-    )).scalar_one_or_none()
+    result = db_session.execute(
+        text(
+            "SELECT indexdef FROM pg_indexes WHERE tablename = 'sites' AND indexname = 'idx_sites_geometry';"
+        )
+    ).scalar_one_or_none()
 
     assert result is not None
     assert "gist" in result.lower()
@@ -151,55 +206,115 @@ def test_gist_spatial_index(db_session: Session) -> None:
 
 # ─── 4. GEOJSON VALIDATION ────────────────────────────────────────────────────────
 
+
 def test_missing_geometry(site_service: SiteService, project_id: uuid.UUID) -> None:
     """Test missing geometry."""
     with pytest.raises(SiteValidationError):
-        site_service.create_site(SiteCreate(project_id=project_id, name="B1", geometry={"type": "Polygon"}))
+        site_service.create_site(
+            SiteCreate(project_id=project_id, name="B1", geometry={"type": "Polygon"})
+        )
 
 
-def test_unsupported_geometry_type(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_unsupported_geometry_type(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test unsupported geometry type."""
     with pytest.raises(SiteValidationError, match="Unsupported geometry type"):
-        site_service.create_site(SiteCreate(project_id=project_id, name="B2", geometry={"type": "Point", "coordinates": [0,0]}))
+        site_service.create_site(
+            SiteCreate(
+                project_id=project_id,
+                name="B2",
+                geometry={"type": "Point", "coordinates": [0, 0]},
+            )
+        )
 
 
-def test_malformed_coordinates(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_malformed_coordinates(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test malformed coordinates structure."""
     with pytest.raises(SiteValidationError, match="Malformed geometry|Invalid polygon"):
-        site_service.create_site(SiteCreate(project_id=project_id, name="B3", geometry={"type": "Polygon", "coordinates": "invalid"}))
+        site_service.create_site(
+            SiteCreate(
+                project_id=project_id,
+                name="B3",
+                geometry={"type": "Polygon", "coordinates": "invalid"},
+            )
+        )
 
 
-def test_insufficient_polygon_coordinates(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_insufficient_polygon_coordinates(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test polygon with too few points."""
     with pytest.raises(SiteValidationError, match="Malformed geometry|Invalid polygon"):
         # A ring must have at least 4 coordinates
-        site_service.create_site(SiteCreate(project_id=project_id, name="B4", geometry={"type": "Polygon", "coordinates": [[[0,0], [1,0], [0,0]]]}))
+        site_service.create_site(
+            SiteCreate(
+                project_id=project_id,
+                name="B4",
+                geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]},
+            )
+        )
 
 
-def test_unclosed_polygon_ring(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_unclosed_polygon_ring(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test polygon ring not closed (last != first)."""
     with pytest.raises(SiteValidationError, match="Malformed geometry|Invalid polygon"):
-        site_service.create_site(SiteCreate(project_id=project_id, name="B5", geometry={"type": "Polygon", "coordinates": [[[0,0], [1,0], [1,1], [0,1]]]}))
+        site_service.create_site(
+            SiteCreate(
+                project_id=project_id,
+                name="B5",
+                geometry={
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]],
+                },
+            )
+        )
 
 
-def test_self_intersecting_polygon(site_service: SiteService, project_id: uuid.UUID) -> None:
+def test_self_intersecting_polygon(
+    site_service: SiteService, project_id: uuid.UUID
+) -> None:
     """Test invalid self-intersecting polygon."""
     with pytest.raises(SiteValidationError, match="Invalid polygon"):
         # Bowtie polygon
-        site_service.create_site(SiteCreate(project_id=project_id, name="B6", geometry={"type": "Polygon", "coordinates": [[[0,0], [1,1], [1,0], [0,1], [0,0]]]}))
+        site_service.create_site(
+            SiteCreate(
+                project_id=project_id,
+                name="B6",
+                geometry={
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 1], [1, 0], [0, 1], [0, 0]]],
+                },
+            )
+        )
 
 
 # ─── 5. ANALYTICS ─────────────────────────────────────────────────────────────────
 
-def test_analytics_range_constraints(site_service: SiteService, project_id: uuid.UUID, db_session: Session) -> None:
+
+def test_analytics_range_constraints(
+    site_service: SiteService, project_id: uuid.UUID, db_session: Session
+) -> None:
     """Test check constraints on Analytics."""
-    geojson = {"type": "Polygon", "coordinates": [[[0,0], [1,0], [1,1], [0,1], [0,0]]]}
-    site = site_service.create_site(SiteCreate(project_id=project_id, name="Site", geometry=geojson))
+    geojson = {
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    }
+    site = site_service.create_site(
+        SiteCreate(project_id=project_id, name="Site", geometry=geojson)
+    )
 
     analytics = SiteAnalytics(
-        site_id=site.id, recorded_date=date.today(), carbon_tonnes=10,
+        site_id=site.id,
+        recorded_date=date.today(),
+        carbon_tonnes=10,
         biodiversity_score=150.0,  # Invalid: > 100
-        vegetation_index=0.5, tree_cover_percentage=50.0
+        vegetation_index=0.5,
+        tree_cover_percentage=50.0,
     )
     db_session.add(analytics)
     with pytest.raises(IntegrityError):

@@ -26,11 +26,13 @@ def test_deterministic_noise():
     assert noise1 != noise3
     assert 10.0 <= noise1 <= 50.0
 
+
 def test_clamp():
     """Test value clamping."""
     assert clamp(5.0, 0.0, 10.0) == 5.0
     assert clamp(15.0, 0.0, 10.0) == 10.0
     assert clamp(-5.0, 0.0, 10.0) == 0.0
+
 
 def test_synthetic_analytics_bounds_and_determinism(db_session: Session):
     """Test analytics generation logic explicitly before full seed."""
@@ -45,7 +47,13 @@ def test_synthetic_analytics_bounds_and_determinism(db_session: Session):
     db_session.commit()
 
     from app.models.enums import ProjectStatus, ProjectType
-    proj = Project(name="P", owner_id=user.id, project_type=ProjectType.OTHER, status=ProjectStatus.ACTIVE)
+
+    proj = Project(
+        name="P",
+        owner_id=user.id,
+        project_type=ProjectType.OTHER,
+        status=ProjectStatus.ACTIVE,
+    )
     db_session.add(proj)
     db_session.commit()
 
@@ -55,15 +63,18 @@ def test_synthetic_analytics_bounds_and_determinism(db_session: Session):
     site = Site(id=site_id, project_id=proj.id, name="S", area_hectares=1.0)
     # fake geometry for FK
     from geoalchemy2.functions import ST_GeomFromText
+
     site.geometry = ST_GeomFromText("POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))", 4326)
     site.centroid = ST_GeomFromText("POINT(0.5 0.5)", 4326)
     db_session.add(site)
     db_session.commit()
 
     generate_synthetic_analytics(db_session, site.id, "TEST-CODE", months=12)
-    db_session.flush() # flush to DB so we can query
+    db_session.flush()  # flush to DB so we can query
 
-    analytics = db_session.query(SiteAnalytics).filter(SiteAnalytics.site_id == site.id).all()
+    analytics = (
+        db_session.query(SiteAnalytics).filter(SiteAnalytics.site_id == site.id).all()
+    )
     assert len(analytics) == 12
 
     for a in analytics:
@@ -72,28 +83,35 @@ def test_synthetic_analytics_bounds_and_determinism(db_session: Session):
         assert 0 <= a.vegetation_index <= 1
         assert 0 <= a.tree_cover_percentage <= 100
 
+
 def test_seed_idempotency_and_reset(monkeypatch, db_session: Session):
     """
     Test the actual seed_data function behavior.
     We must monkeypatch the DB creation in the script so it uses the test database.
     """
+
     # Monkeypatch the create_engine and sessionmaker inside seed_demo_data
     # so it uses our pytest db_session instead of spinning up a new session.
     class DummySessionLocal:
         def __enter__(self):
             return db_session
+
         def __exit__(self, exc_type, exc_val, exc_tb):
             pass
 
-    monkeypatch.setattr("scripts.seed_demo_data.sessionmaker", lambda **kw: DummySessionLocal)
+    monkeypatch.setattr(
+        "scripts.seed_demo_data.sessionmaker", lambda **kw: DummySessionLocal
+    )
     monkeypatch.setattr("scripts.seed_demo_data.create_engine", lambda url, **kw: None)
 
     # Mock the passlib CryptContext to avoid bcrypt version incompatibility during testing
     class DummyCryptContext:
         def __init__(self, **kwargs):
             pass
+
         def hash(self, secret):
             return "dummy_hash"
+
     monkeypatch.setattr("passlib.context.CryptContext", DummyCryptContext)
 
     # Initial seed

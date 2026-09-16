@@ -2,6 +2,7 @@
 Site service layer.
 """
 
+import uuid
 from collections.abc import Sequence
 
 from geoalchemy2 import Geography
@@ -15,6 +16,7 @@ from app.schemas.site import SiteCreate
 
 class SiteValidationError(ValueError):
     """Application-level error for invalid site data (e.g., GeoJSON validation)."""
+
     pass
 
 
@@ -39,15 +41,21 @@ class SiteService:
 
         geom_type = geojson.get("type")
         if geom_type != "Polygon":
-            raise SiteValidationError(f"Unsupported geometry type: {geom_type}. Only Polygon is allowed.")
+            raise SiteValidationError(
+                f"Unsupported geometry type: {geom_type}. Only Polygon is allowed."
+            )
 
         # GeoJSON strictly requires rings to be closed
         coords = geojson.get("coordinates", [])
         for ring in coords:
             if len(ring) < 4:
-                raise SiteValidationError("Invalid polygon: rings must have at least 4 coordinates.")
+                raise SiteValidationError(
+                    "Invalid polygon: rings must have at least 4 coordinates."
+                )
             if ring[0] != ring[-1]:
-                raise SiteValidationError("Invalid polygon: rings must be closed (first and last coordinate must match).")
+                raise SiteValidationError(
+                    "Invalid polygon: rings must be closed (first and last coordinate must match)."
+                )
 
         try:
             geom = shape(geojson)
@@ -56,7 +64,9 @@ class SiteService:
 
         if not geom.is_valid:
             # Shapely validates ring closure, self-intersection, etc.
-            raise SiteValidationError("Invalid polygon geometry (e.g., self-intersecting or invalid ring closure).")
+            raise SiteValidationError(
+                "Invalid polygon geometry (e.g., self-intersecting or invalid ring closure)."
+            )
 
         if geom.is_empty:
             raise SiteValidationError("Geometry cannot be empty.")
@@ -76,7 +86,8 @@ class SiteService:
             # Assigning PostGIS functions which will be evaluated on INSERT
             geometry=ST_GeomFromText(wkt, 4326),
             # ST_Area on geography type gives square meters. Divide by 10000 for hectares.
-            area_hectares=ST_Area(cast(ST_GeomFromText(wkt, 4326), Geography)) / 10000.0,
+            area_hectares=ST_Area(cast(ST_GeomFromText(wkt, 4326), Geography))
+            / 10000.0,
             centroid=ST_Centroid(ST_GeomFromText(wkt, 4326)),
         )
         return self.repository.create(site)
@@ -85,6 +96,24 @@ class SiteService:
         """Get a site by ID."""
         return self.repository.get_by_id(site_id)
 
-    def list_sites_by_project(self, project_id) -> Sequence[Site]:
-        """List all sites for a project."""
-        return self.repository.list_by_project(project_id)
+    def list_sites_for_project(
+        self,
+        project_id: uuid.UUID,
+        name: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> tuple[Sequence[Site], int]:
+        """List all sites for a project with pagination."""
+        return self.repository.list_by_project(
+            project_id=project_id, name=name, limit=limit, offset=offset
+        )
+
+    def get_map_features(
+        self, owner_id: uuid.UUID, project_id: uuid.UUID | None = None
+    ) -> list[dict]:
+        """Get all sites for a user as GeoJSON map features."""
+        return self.repository.get_map_features(owner_id, project_id)
+
+    def get_summary(self, site_id: uuid.UUID) -> dict | None:
+        """Get the latest metrics for a site."""
+        return self.repository.get_summary(site_id)
