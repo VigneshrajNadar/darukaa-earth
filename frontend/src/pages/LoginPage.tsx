@@ -12,8 +12,8 @@ function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [email, setEmail] = useState('demo@darukaa-earth.local')
-  const [password, setPassword] = useState('demo_password')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -73,6 +73,12 @@ function LoginPage() {
               Sign In
             </Button>
           </form>
+
+          <p className="mt-5 text-center text-xs leading-5 text-slate-500">
+            Demo access uses{' '}
+            <span className="font-medium text-slate-400">demo@darukaa-earth.com</span> and the
+            password configured by the administrator.
+          </p>
 
           <div className="mt-8 text-center text-sm text-slate-500">
             Don&apos;t have an account?{' '}
