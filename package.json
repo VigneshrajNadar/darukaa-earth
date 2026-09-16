@@ -1,0 +1,13 @@
+{
+  "name": "darukaa-earth-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Darukaa.Earth monorepo root — manages pre-commit hooks across frontend and backend.",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10"
+  }
+}

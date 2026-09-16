@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Darukaa.Earth — Development Docker Compose
+#
+# Purpose: Runs PostgreSQL 16 with PostGIS 3.4 for local development.
+# The FastAPI backend and Vite frontend run outside Docker for a faster DX.
+#
+# Usage:
+#   docker compose up -d          # start database
+#   docker compose down           # stop (data persists in volume)
+#   docker compose down -v        # stop + wipe all data
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: darukaa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-darukaa}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-darukaa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    driver: local

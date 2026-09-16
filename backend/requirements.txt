@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Darukaa.Earth Backend — Production Dependencies
+# Pin exact versions for reproducible builds.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Web framework
+fastapi>=0.115.0,<0.120.0
+uvicorn[standard]>=0.32.0,<0.35.0
+
+# Database
+sqlalchemy>=2.0.36,<2.1.0
+alembic>=1.13.3,<1.15.0
+psycopg2-binary>=2.9.10,<3.0.0
+geoalchemy2>=0.15.0,<0.16.0
+
+# Validation & settings
+pydantic>=2.9.2,<3.0.0
+pydantic-settings>=2.5.2,<3.0.0
+
+# Authentication scaffolding (not yet wired — architectural placeholder)
+python-jose[cryptography]>=3.3.0,<4.0.0
+passlib[bcrypt]>=1.7.4,<2.0.0
+
+# Multipart form support (required by FastAPI for file uploads)
+python-multipart>=0.0.12,<1.0.0

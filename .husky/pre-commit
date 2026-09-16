@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# Darukaa.Earth pre-commit hook
+# Runs lint-staged on staged files before every commit.
+# Covers both frontend (TypeScript/TSX via ESLint + Prettier)
+# and backend (Python via Ruff).
+#
+# lint-staged config is in .lintstagedrc.json at the monorepo root.
+# Staged TypeScript files → ESLint --fix + Prettier --write
+# Staged Python files      → ruff check --fix + ruff format
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd "$(git rev-parse --show-toplevel)"
+npx lint-staged
