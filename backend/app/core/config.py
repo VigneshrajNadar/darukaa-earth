@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     # ─── Database ─────────────────────────────────────────────────────────────
     database_url: str = "postgresql://postgres:changeme@localhost:5432/darukaa"
+    test_database_url: str = "postgresql://postgres:changeme@localhost:5432/darukaa_test"
 
     # ─── JWT (architectural scaffold — not yet wired into auth endpoints) ─────
     jwt_secret_key: str = "CHANGE_ME_USE_A_STRONG_RANDOM_SECRET"

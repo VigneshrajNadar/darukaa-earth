@@ -334,6 +334,42 @@ GitHub Actions runs both test suites on every push and pull request to `main` an
 
 ---
 
+## Local Database Setup (PostgreSQL + PostGIS)
+
+Darukaa.Earth requires a local PostgreSQL instance with the PostGIS extension installed.
+
+#### 1. Start Database Services
+Ensure your PostgreSQL server is running. For Homebrew on macOS:
+```bash
+brew services start postgresql@17
+```
+
+#### 2. Provision Databases & Extensions
+Use the provided script to set up the `darukaa` and `darukaa_test` databases and enable PostGIS:
+```bash
+./setup_local_db.sh
+```
+
+#### 3. Run Migrations
+Apply the Alembic migrations to build the schema:
+```bash
+alembic upgrade head
+```
+
+#### 4. Seed Demonstration Data
+To populate the database with a reproducible, India-focused demonstration dataset (including synthetic analytics):
+```bash
+python scripts/seed_demo_data.py
+```
+> **Note**: This dataset uses curated, demonstration geometries inspired by Indian conservation regions. It does not redistribute raw official datasets. Synthetic analytics are generated mathematically to demonstrate the platform and are NOT real empirical measurements. 
+
+To safely reset and rebuild only the demonstration data:
+```bash
+python scripts/seed_demo_data.py --reset
+```
+
+---
+
 ## Architectural Decisions
 
 ### Why synchronous SQLAlchemy?

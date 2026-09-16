@@ -1,23 +1,32 @@
 """
-User Pydantic schemas — scaffold.
-
-Full request/response schemas (UserCreate, UserRead, UserUpdate, TokenResponse)
-will be defined in the authentication stage.
+User Pydantic schemas.
 """
 
-from pydantic import BaseModel, EmailStr
+import uuid
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    """Shared user fields."""
+    """Base schema for user properties."""
 
-    email: EmailStr
-    full_name: str
+    name: str = Field(..., max_length=255)
+    email: EmailStr = Field(..., max_length=255)
+    is_active: bool = True
+
+
+class UserCreate(UserBase):
+    """Schema for creating a new user."""
+
+    password: str = Field(..., min_length=8, max_length=255)
 
 
 class UserRead(UserBase):
-    """User response schema (excludes sensitive fields like hashed_password)."""
+    """Schema for reading a user (never exposes password hash)."""
 
-    id: str
+    model_config = ConfigDict(from_attributes=True)
 
-    model_config = {"from_attributes": True}
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
