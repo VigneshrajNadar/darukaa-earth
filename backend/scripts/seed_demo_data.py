@@ -42,8 +42,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 DEMO_USER_EMAIL = "demo@darukaa-earth.com"
-# The password should be passed via env var; otherwise, default to a safe mock value
-DEMO_USER_PASSWORD = os.getenv("DEMO_USER_PASSWORD", "demo1234")
 
 
 def generate_deterministic_noise(
@@ -121,6 +119,12 @@ def generate_synthetic_analytics(
 
 
 def seed_data(reset: bool = False):
+    demo_user_password = os.getenv("DEMO_USER_PASSWORD")
+    if not demo_user_password:
+        raise RuntimeError(
+            "DEMO_USER_PASSWORD must be set before seeding demonstration data."
+        )
+
     settings = get_settings()
     engine = create_engine(settings.database_url, pool_pre_ping=True)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -156,7 +160,7 @@ def seed_data(reset: bool = False):
             from passlib.context import CryptContext
 
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-            hashed_pw = pwd_context.hash(DEMO_USER_PASSWORD)
+            hashed_pw = pwd_context.hash(demo_user_password)
         except ValueError:
             # Workaround for passlib + bcrypt >= 4.0 bug
             hashed_pw = "$2b$12$eDjCSc0zzs3FwlldsAGXx.ohU9uQXtE3cjL5.CuY6Qy1H.3twWSvW"

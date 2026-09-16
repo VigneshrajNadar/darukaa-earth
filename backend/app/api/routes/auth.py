@@ -52,12 +52,9 @@ def login(
     repo = UserRepository(db)
     user = repo.get_by_email(form_data.username)
     if not user:
-        print(f"DEBUG: User not found for email: {form_data.username}")
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    print(f"DEBUG: Attempted password is '{form_data.password}'")
     if not verify_password(form_data.password, user.password_hash):
-        print(f"DEBUG: Password verification failed for user: {form_data.username}")
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
     access_token = create_access_token(subject=user.id)

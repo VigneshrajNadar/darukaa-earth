@@ -103,6 +103,7 @@ def test_seed_idempotency_and_reset(monkeypatch, db_session: Session):
         "scripts.seed_demo_data.sessionmaker", lambda **kw: DummySessionLocal
     )
     monkeypatch.setattr("scripts.seed_demo_data.create_engine", lambda url, **kw: None)
+    monkeypatch.setenv("DEMO_USER_PASSWORD", "test-only-demo-password")
 
     # Mock the passlib CryptContext to avoid bcrypt version incompatibility during testing
     class DummyCryptContext:

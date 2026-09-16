@@ -25,16 +25,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain-text password against a bcrypt hash."""
     try:
         return pwd_context.verify(plain_password, hashed_password)
-    except ValueError as e:
-        print(f"DEBUG: ValueError in passlib: {e}")
-        # Workaround for passlib + bcrypt >= 4.0 bug on macOS
-        # If the hash matches the known fallback hash for the demo user, allow it
-        fallback_hash = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjIQqiRQYq"
-        print(
-            f"DEBUG: Checking fallback. Match Hash: {hashed_password == fallback_hash}, Match Password: {plain_password == 'demo1234'}"
-        )
-        if hashed_password == fallback_hash and plain_password == "demo1234":
-            return True
+    except ValueError:
+        # Invalid hashes are authentication failures.  Never add a fallback
+        # credential or emit password-related diagnostics in production.
         return False
 
 
