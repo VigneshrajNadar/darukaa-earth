@@ -131,3 +131,34 @@
   width: 100% !important;
   height: 100% !important;
 }
+
+/* Keep Mapbox's native controls, but give the geospatial workspace an
+   accessible, touch-friendly control stack. */
+.sites-map-canvas .mapboxgl-ctrl-top-right {
+  top: 16px;
+  right: 16px;
+}
+
+.sites-map-canvas .mapboxgl-ctrl-group {
+  overflow: hidden;
+  border: 1px solid rgba(24, 60, 37, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 20px rgba(16, 46, 26, 0.16);
+}
+
+.sites-map-canvas .mapboxgl-ctrl-group button {
+  width: 42px;
+  height: 42px;
+}
+
+.sites-map-canvas .mapboxgl-ctrl-group button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid #48a35a;
+  outline-offset: -3px;
+}
+
+.sites-map-canvas .mapboxgl-ctrl-icon {
+  background-size: 22px 22px;
+}
