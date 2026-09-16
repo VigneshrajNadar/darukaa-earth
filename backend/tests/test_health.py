@@ -7,6 +7,7 @@ Uses FastAPI's TestClient (synchronous) via httpx.
 
 import pytest
 from fastapi.testclient import TestClient
+
 from main import app
 
 

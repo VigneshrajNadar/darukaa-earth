@@ -42,7 +42,7 @@ vi.mock('@/api/projects', () => ({
 }))
 
 describe('MapPage', () => {
-  it('renders the map container and filter dropdown', async () => {
+  it('renders the map container and both toolbar selectors', async () => {
     render(
       <MemoryRouter>
         <MapPage />
@@ -50,6 +50,7 @@ describe('MapPage', () => {
     )
 
     expect(screen.getByText('Sites Map')).toBeInTheDocument()
-    expect(screen.getByRole('combobox')).toBeInTheDocument() // The select dropdown
+    expect(screen.getByRole('combobox', { name: 'Project' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Select site' })).toBeInTheDocument()
   })
 })
