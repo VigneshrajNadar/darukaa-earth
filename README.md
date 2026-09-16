@@ -6,7 +6,7 @@
 
 **GitHub Repository:** https://github.com/VigneshrajNadar/darukaa-earth
 
-**Live Demo:** `https://darukaa-earth-lime.vercel.app/`
+**Live Demo:** https://darukaa-earth-lime.vercel.app
 
 ---
 
