@@ -107,10 +107,6 @@ function MapPage() {
         setSuccessMessage('This site is already in comparison.')
         return current
       }
-      if (current.length >= 3) {
-        setSuccessMessage('Maximum of three sites can be compared.')
-        return current
-      }
       setSuccessMessage('Added to comparison.')
       return [...current, site]
     })
@@ -372,9 +368,9 @@ function MapPage() {
                   navigate(`/compare?sites=${compareSites.map(({ id }) => id).join(',')}`)
                 }
                 className="h-11 shrink-0 px-3 sm:min-w-32"
-                aria-label={`Compare ${compareSites.length} of 3 sites`}
+                aria-label={`Compare ${compareSites.length} sites`}
               >
-                Compare {compareSites.length}/3
+                Compare {compareSites.length}
               </Button>
               <Button
                 onClick={startDrawing}
@@ -568,7 +564,7 @@ function MapPage() {
             <CardContent className="p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-100">Compare sites</h2>
-                <Badge variant="default">{compareSites.length} / 3 selected</Badge>
+                <Badge variant="default">{compareSites.length} selected</Badge>
               </div>
               <div className="mb-3 flex flex-wrap gap-2">
                 {compareSites.map(site => (

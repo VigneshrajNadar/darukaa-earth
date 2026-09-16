@@ -47,7 +47,7 @@ const METRICS: { key: MetricKey; label: string; unit: string }[] = [
   { key: 'vegetation_index', label: 'Vegetation', unit: 'idx' },
 ]
 
-const SITE_COLORS = ['#3b82f6', '#10b981', '#f59e0b'] // blue, emerald, amber
+const siteColor = (index: number) => `hsl(${(index * 137.508 + 212) % 360} 72% 47%)`
 
 function ComparePage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -56,10 +56,7 @@ function ComparePage() {
   const siteIdsParam = searchParams.get('sites')
   const siteIds = useMemo(() => {
     if (!siteIdsParam) return []
-    return siteIdsParam
-      .split(',')
-      .filter(id => id.trim().length > 0)
-      .slice(0, 3)
+    return siteIdsParam.split(',').filter(id => id.trim().length > 0)
   }, [siteIdsParam])
 
   const [sites, setSites] = useState<Site[]>([])
@@ -170,7 +167,7 @@ function ComparePage() {
       <div className="p-8 max-w-7xl mx-auto h-[calc(100vh-100px)] flex items-center justify-center">
         <EmptyState
           title="Compare Sites"
-          description="Select up to 3 sites to compare their environmental indicators side-by-side."
+          description="Select sites to compare their environmental indicators side-by-side."
           icon={<MapIcon className="h-10 w-10 text-slate-600" />}
           action={
             <Button onClick={() => navigate('/map')} className="mt-2">
@@ -215,8 +212,8 @@ function ComparePage() {
     return {
       label: site.name,
       data,
-      borderColor: SITE_COLORS[index % SITE_COLORS.length],
-      backgroundColor: SITE_COLORS[index % SITE_COLORS.length] + '20', // transparent fill
+      borderColor: siteColor(index),
+      backgroundColor: siteColor(index),
       borderWidth: 2,
       pointRadius: 3,
       pointHoverRadius: 5,
@@ -257,7 +254,7 @@ function ComparePage() {
               key={site.id}
               className="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-full text-sm"
             >
-              <span style={{ color: SITE_COLORS[idx % SITE_COLORS.length] }}>●</span>
+              <span style={{ color: siteColor(idx) }}>●</span>
               <span className="text-slate-200">{site.name}</span>
               <button
                 onClick={() => removeSite(site.id)}
@@ -268,14 +265,12 @@ function ComparePage() {
               </button>
             </div>
           ))}
-          {sites.length < 3 && (
-            <Link
-              to="/map"
-              className="text-earth-500 hover:text-earth-400 text-sm border border-earth-500/30 rounded-full px-3 py-1.5 transition-colors"
-            >
-              + Add Site
-            </Link>
-          )}
+          <Link
+            to="/map"
+            className="text-earth-600 hover:text-earth-800 text-sm border border-earth-500/40 rounded-full px-3 py-1.5 transition-colors"
+          >
+            + Add Site
+          </Link>
         </div>
 
         <div className="flex flex-wrap gap-4 items-center bg-slate-900 p-5 rounded-xl border border-slate-800">
@@ -326,7 +321,7 @@ function ComparePage() {
               plugins: {
                 legend: {
                   position: 'top',
-                  labels: { color: '#cbd5e1', usePointStyle: true },
+                  labels: { color: '#345440', usePointStyle: true },
                 },
                 tooltip: {
                   backgroundColor: '#0f172a',
@@ -342,12 +337,12 @@ function ComparePage() {
               },
               scales: {
                 x: {
-                  grid: { color: '#1e293b' },
-                  ticks: { color: '#94a3b8' },
+                  grid: { color: '#d7e1d2' },
+                  ticks: { color: '#526356' },
                 },
                 y: {
-                  grid: { color: '#1e293b' },
-                  ticks: { color: '#94a3b8' },
+                  grid: { color: '#d7e1d2' },
+                  ticks: { color: '#526356' },
                   beginAtZero: true,
                 },
               },
