@@ -40,7 +40,9 @@ export const MapboxDrawControl = forwardRef<MapboxDrawHandle, MapboxDrawControlP
       drawRef.current = new MapboxDraw({
         displayControlsDefault: false,
         controls: {
-          polygon: true,
+          // Drawing is started from the clearly labelled in-product action.
+          // Keep only trash here for editing an in-progress boundary.
+          polygon: false,
           trash: true,
         },
         defaultMode: 'simple_select',

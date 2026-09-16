@@ -252,6 +252,13 @@ function MapPage() {
     if (mapReady) void loadSites(selectedProjectId)
   }, [loadSites, mapReady, selectedProjectId])
 
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    const frame = requestAnimationFrame(() => map.resize())
+    return () => cancelAnimationFrame(frame)
+  }, [isDrawing, mapReady])
+
   const saveSite = async () => {
     const name = newSiteName.trim()
     if (!drawnFeature || !name || !newSiteProject) {
@@ -436,7 +443,7 @@ function MapPage() {
         </aside>
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-4">
           {mapStatus === 'loading' && (
-            <div className="rounded-full border border-slate-700 bg-slate-900/95 px-5 py-3 text-sm text-slate-200 shadow-lg">
+            <div className="rounded-full border border-earth-200 bg-white/95 px-5 py-3 text-sm font-medium text-earth-800 shadow-lg">
               Loading sites…
             </div>
           )}
