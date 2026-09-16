@@ -5,14 +5,30 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
   containerClassName?: string
+  labelClassName?: string
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className = '', containerClassName = '', label, error, id, children, ...props }, ref) => {
+  (
+    {
+      className = '',
+      containerClassName = '',
+      labelClassName = '',
+      label,
+      error,
+      id,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium text-slate-300 mb-1.5">
+          <label
+            htmlFor={id}
+            className={`mb-1.5 block text-sm font-medium text-slate-300 ${labelClassName}`}
+          >
             {label}
           </label>
         )}

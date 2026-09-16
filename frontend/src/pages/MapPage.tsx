@@ -307,17 +307,15 @@ function MapPage() {
 
   return (
     <div className="flex h-[calc(100dvh-74px)] min-h-0 flex-col">
-      <header
-        className={`shrink-0 border-b border-[#dfe5d9] bg-[#fbfcf8]/95 px-4 backdrop-blur sm:px-6 ${isDrawing ? 'py-2' : 'py-3'}`}
-      >
-        <div className="mx-auto max-w-screen-2xl">
-          {!isDrawing ? (
-            <div className="flex flex-wrap items-end gap-x-3 gap-y-2.5">
+      {!isDrawing && (
+        <header className="shrink-0 border-b border-[#dfe5d9] bg-[#fbfcf8]/95 px-4 py-2 backdrop-blur sm:px-6">
+          <div className="mx-auto max-w-screen-2xl">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <div className="mr-auto min-w-[12rem]">
-                <h1 className="flex items-center gap-2 text-xl font-bold text-[#183c25]">
-                  <MapIcon className="h-5 w-5 text-earth-600" /> Sites Map
+                <h1 className="flex items-center gap-2 text-lg font-bold text-[#183c25]">
+                  <MapIcon className="h-4 w-4 text-earth-600" /> Sites Map
                 </h1>
-                <p className="mt-0.5 text-xs text-[#718073] sm:text-sm">
+                <p className="mt-0.5 text-xs text-[#718073]">
                   Curated demonstration geometries. Analytics are synthetic demonstration data.
                 </p>
               </div>
@@ -329,6 +327,7 @@ function MapPage() {
                 onChange={event => setSelectedProjectId(event.target.value)}
                 className="h-11 min-w-0"
                 containerClassName="w-full sm:w-52"
+                labelClassName="sr-only"
               >
                 <option value="">All Projects</option>
                 {projects.map(project => (
@@ -350,6 +349,7 @@ function MapPage() {
                 }}
                 className="h-11 min-w-0"
                 containerClassName="w-full sm:w-52"
+                labelClassName="sr-only"
               >
                 <option value="">Select Site</option>
                 {siteFeatures.map(feature => (
@@ -379,21 +379,9 @@ function MapPage() {
                 Add Site
               </Button>
             </div>
-          ) : (
-            <div className="flex items-center justify-between gap-3">
-              <p
-                className="flex items-center gap-2 text-sm font-semibold text-[#183c25]"
-                role="status"
-              >
-                <PencilRuler className="h-4 w-4 text-earth-600" /> Drawing site boundary
-              </p>
-              <Button variant="secondary" onClick={cancelDrawing} className="h-11 shrink-0">
-                Cancel drawing
-              </Button>
-            </div>
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
+      )}
       <section className="relative min-h-0 flex-1 bg-slate-950" aria-label="Interactive sites map">
         <div ref={containerRef} className="sites-map-canvas absolute inset-0" />
         {!isDrawing && (
