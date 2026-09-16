@@ -78,6 +78,10 @@ describe('SiteDetailPage', () => {
     expect(await screen.findByText('Test Site')).toBeInTheDocument()
     expect(screen.getAllByText('Demonstration Data').length).toBeGreaterThan(0)
     expect(screen.getByText(/No environmental analytics are available/i)).toBeInTheDocument()
+    expect(screen.getByText('Performance Score')).toBeInTheDocument()
+    expect(screen.getByText('N/A')).toBeInTheDocument()
+    expect(screen.getByText('No analytics available')).toBeInTheDocument()
+    expect(screen.queryByText('Needs Attention')).not.toBeInTheDocument()
   })
 
   it('renders biodiversity as a neutral demonstration index while retaining the performance score scale', async () => {
@@ -121,6 +125,6 @@ describe('SiteDetailPage', () => {
     expect(await screen.findByText('76.5')).toBeInTheDocument()
     expect(screen.getByText('index points')).toBeInTheDocument()
     expect(screen.queryByText('/ 100')).not.toBeInTheDocument()
-    expect(screen.getByText('/100')).toBeInTheDocument()
+    expect(screen.getByText('/ 100')).toBeInTheDocument()
   })
 })

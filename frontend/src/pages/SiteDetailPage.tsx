@@ -181,27 +181,35 @@ function SiteDetailPage() {
               <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">
                 Performance Score
               </p>
-              <p className="text-3xl font-bold text-slate-100">
-                {performanceScore.score}
-                <span className="text-lg text-slate-500">/100</span>
-              </p>
+              {rawAnalytics.length > 0 ? (
+                <p className="text-3xl font-bold text-slate-100">
+                  {performanceScore.score}
+                  <span className="ml-1 text-lg text-slate-500">/ 100</span>
+                </p>
+              ) : (
+                <p className="text-3xl font-bold text-slate-100">N/A</p>
+              )}
               <p className="text-[10px] text-slate-500 mt-1 max-w-[120px] leading-tight">
-                Demonstration metric (app-defined weights).
+                {rawAnalytics.length > 0
+                  ? 'Demonstration metric (app-defined weights).'
+                  : 'No analytics available'}
               </p>
             </div>
-            <Badge
-              variant={
-                performanceScore.score >= 85
-                  ? 'success'
-                  : performanceScore.score >= 70
-                    ? 'info'
-                    : performanceScore.score >= 40
-                      ? 'warning'
-                      : 'danger'
-              }
-            >
-              {performanceScore.label}
-            </Badge>
+            {rawAnalytics.length > 0 && (
+              <Badge
+                variant={
+                  performanceScore.score >= 85
+                    ? 'success'
+                    : performanceScore.score >= 70
+                      ? 'info'
+                      : performanceScore.score >= 40
+                        ? 'warning'
+                        : 'danger'
+                }
+              >
+                {performanceScore.label}
+              </Badge>
+            )}
           </CardContent>
         </Card>
       </div>

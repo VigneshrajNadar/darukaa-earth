@@ -388,7 +388,7 @@ function ComparePage() {
                   <td key={s.id} className="px-6 py-4">
                     {comparisons[s.id].previousValue !== null
                       ? `${formatDisplayValue(selectedMetric, comparisons[s.id].previousValue as number)} ${activeMetricConfig.unit}`
-                      : 'N/A'}
+                      : 'No previous period'}
                   </td>
                 ))}
               </tr>

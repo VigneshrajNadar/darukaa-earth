@@ -33,9 +33,9 @@ export function KpiCard({ title, value, unit, percentageChange, trend }: KpiCard
     <Card className="flex flex-col justify-between transition-all hover:border-slate-700">
       <CardContent className="p-5">
         <h3 className="text-sm font-medium text-slate-400 mb-2">{title}</h3>
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline">
           <span className="text-3xl font-bold text-slate-100">{value}</span>
-          {unit && <span className="text-sm font-medium text-slate-500">{unit}</span>}
+          {unit && <span className="ml-2 text-sm font-medium text-slate-500">{unit}</span>}
         </div>
 
         <div className="mt-4 flex items-center justify-between border-t border-slate-800/50 pt-3">
@@ -48,7 +48,7 @@ export function KpiCard({ title, value, unit, percentageChange, trend }: KpiCard
           ) : (
             <div className="text-sm text-slate-500 flex items-center">
               <Minus className="mr-1.5 h-4 w-4 shrink-0" />
-              N/A vs previous
+              No previous period
             </div>
           )}
         </div>
