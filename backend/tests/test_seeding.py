@@ -2,6 +2,8 @@ import uuid
 
 # Import the seed script methods directly to test logic without calling argparse
 from scripts.seed_demo_data import (
+    DEMO_MONTHS,
+    DEMO_PROJECTS,
     DEMO_USER_EMAIL,
     clamp,
     generate_deterministic_noise,
@@ -124,8 +126,9 @@ def test_seed_idempotency_and_reset(monkeypatch, db_session: Session):
     initial_site_count = db_session.query(Site).count()
     initial_analytics_count = db_session.query(SiteAnalytics).count()
 
-    assert initial_site_count > 0
-    assert initial_analytics_count == initial_site_count * 24
+    assert db_session.query(Project).count() == len(DEMO_PROJECTS)
+    assert initial_site_count == len(DEMO_PROJECTS) * 5
+    assert initial_analytics_count == initial_site_count * DEMO_MONTHS
 
     # Run again without reset (should be idempotent)
     seed_data(reset=False)
