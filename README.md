@@ -306,7 +306,13 @@ Current tests:
 GitHub Actions runs on pushes and pull requests targeting `main`. The frontend job runs
 Prettier, ESLint, TypeScript, Vitest, and a Vite production build with a non-secret
 Mapbox placeholder. The backend job runs Ruff and pytest against PostgreSQL 16 with
-PostGIS 3.4. This CI scope validates quality only; it does not deploy the application.
+PostGIS 3.4.
+
+After CI succeeds for a commit on `main`, the **Deploy after CI** workflow triggers the
+production Render and Vercel deploy hooks. The hook URLs are stored only as GitHub
+Actions secrets (`RENDER_DEPLOY_HOOK_URL` and `VERCEL_DEPLOY_HOOK_URL`), never in the
+repository. Do not enable direct push-based auto-deploys in Render or Vercel when this
+gate is active.
 
 ---
 
