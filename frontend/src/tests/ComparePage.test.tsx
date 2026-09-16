@@ -37,7 +37,7 @@ describe('ComparePage', () => {
     )
 
     expect(screen.getByText('Compare Sites')).toBeInTheDocument()
-    expect(screen.getByText(/Select up to 3 sites/)).toBeInTheDocument()
+    expect(screen.getByText(/Select sites to compare/)).toBeInTheDocument()
   })
 
   it('renders loading state initially with sites in url', () => {
@@ -125,6 +125,6 @@ describe('ComparePage', () => {
     fireEvent.click(removeBtn)
 
     // Should render empty state
-    expect(await screen.findByText(/Select up to 3 sites/)).toBeInTheDocument()
+    expect(await screen.findByText(/Select sites to compare/)).toBeInTheDocument()
   })
 })
