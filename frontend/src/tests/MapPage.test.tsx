@@ -24,6 +24,9 @@ vi.mock('mapbox-gl', () => {
         setHTML = vi.fn().mockReturnThis()
         addTo = vi.fn().mockReturnThis()
       },
+      NavigationControl: class {
+        constructor() {}
+      },
     },
   }
 })
