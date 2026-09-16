@@ -60,6 +60,14 @@ def clamp(val: float, min_val: float, max_val: float) -> float:
     return max(min_val, min(val, max_val))
 
 
+def hash_demo_password(password: str) -> str:
+    """Hash the deployment-provided password for the demonstration account."""
+    from passlib.context import CryptContext
+
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    return pwd_context.hash(password)
+
+
 def generate_synthetic_analytics(
     db: Session, site_id, site_code: str, months: int = 24
 ) -> None:
@@ -149,21 +157,16 @@ def seed_data(reset: bool = False):
                 )
         else:
             if existing_user:
+                existing_user.password_hash = hash_demo_password(demo_user_password)
+                db.commit()
                 logger.info(
-                    "Demo user already exists. Seed is idempotent and will not duplicate data. Run with --reset to rebuild."
+                    "Demo user already exists. Its deployment-provided password was synchronized; demonstration data was not duplicated."
                 )
                 return
 
         # 1. Create Demo User
         logger.info("Creating demo user...")
-        try:
-            from passlib.context import CryptContext
-
-            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-            hashed_pw = pwd_context.hash(demo_user_password)
-        except ValueError:
-            # Workaround for passlib + bcrypt >= 4.0 bug
-            hashed_pw = "$2b$12$eDjCSc0zzs3FwlldsAGXx.ohU9uQXtE3cjL5.CuY6Qy1H.3twWSvW"
+        hashed_pw = hash_demo_password(demo_user_password)
 
         user = User(name="Demo Admin", email=DEMO_USER_EMAIL, password_hash=hashed_pw)
         db.add(user)
