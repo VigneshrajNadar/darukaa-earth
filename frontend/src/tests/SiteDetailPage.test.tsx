@@ -124,7 +124,6 @@ describe('SiteDetailPage', () => {
 
     expect(await screen.findByText('76.5')).toBeInTheDocument()
     expect(screen.getByText('index points')).toBeInTheDocument()
-    expect(screen.queryByText('/ 100')).not.toBeInTheDocument()
     expect(screen.getByText('/ 100')).toBeInTheDocument()
   })
 })
